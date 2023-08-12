@@ -1,0 +1,17 @@
+name: 'Perl versions'
+description: 'Generate Perl versions list for your matrix'
+inputs:
+  since-perl:
+    description: "List all Perl versions since this (including this). Example: 5.10"
+    type: string
+    required: true
+  with-devel:
+    description: "Whether to include also 'devel' Perl"
+    type: boolean
+    default: false
+outputs:
+  perl-versions:
+    description: "JSON containing list of perl versions"
+runs:
+  using: node16
+  main: perl-versions.js

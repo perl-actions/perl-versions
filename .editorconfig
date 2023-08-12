@@ -1,0 +1,15 @@
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+# be tolerant to others, configure your editor's tab-width with
+# your preferred value (mine is 4)
+[*.js]
+charset = utf-8
+indent_style = tab
+
+[*.yml]
+indent_style = space
+indent_size = 2
