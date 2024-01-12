@@ -44,6 +44,6 @@ jobs:
       - perl-versions
     strategy:
       matrix:
-        perl-versions: ${{ fromJson (needs.perl-versions.outputs.perl-versions }}
+        perl-versions: ${{ fromJson (needs.perl-versions.outputs.perl-versions) }}
 
 ```
