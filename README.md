@@ -47,3 +47,36 @@ jobs:
         perl-versions: ${{ fromJson (needs.perl-versions.outputs.perl-versions }}
 
 ```
+
+# Reusable workflow
+
+There is also reusable workflow simplifying call of this action.
+
+## Inputs
+
+### since-perl
+
+Forwarded to action.
+
+## Outputs
+
+### perl-version
+
+String containing JSON array with list of Perl versions.
+
+## Usage
+
+```
+jobs:
+  perl-versions:
+    uses: perl-actions/perl-versions/.github/workflows/perl-versions.yml@main
+    with:
+      since-perl: 5.10
+
+  test:
+    needs:
+      - perl-versions
+    strategy:
+      matrix:
+        perl-versions: ${{ fromJson (needs.perl-versions.outputs.perl-versions) }}
+```

@@ -1,0 +1,27 @@
+name: List perl versions
+
+on:
+  workflow_call:
+    inputs:
+      since-perl:
+        description: "List Perl versions since given version (including)."
+        type: string
+        required: true
+        default: "5.10"
+    outputs:
+      perl-versions:
+        value: ${{ jobs.perl-versions.outputs.perl-versions }}
+
+jobs:
+  perl-versions:
+    runs-on: ubuntu-latest
+    name: List perl versions
+    outputs:
+      perl-versions: ${{ steps.action.outputs.perl-versions }}
+    steps:
+      - name: Perl versions action step
+        id: action
+        uses: perl-actions/perl-versions@main
+        with:
+          since-perl: ${{ inputs.since-perl }}
+
