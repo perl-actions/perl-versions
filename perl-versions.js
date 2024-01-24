@@ -1,9 +1,10 @@
 
 const core   = require('@actions/core');
 const github = require('@actions/github');
+const semver = require('semver');
 
 try {
-	const since_perl = core.getInput('since-perl');
+	const since_perl = semver.coerce (core.getInput('since-perl'));
 	const with_devel = core.getInput('with-devel') == "true";
 
 	let found = false;
@@ -18,8 +19,7 @@ try {
 	let filtered = available.filter (
 		(item) => {
 			if (item == "devel") { return with_devel; }
-			if (! found) { found = (item == since_perl); }
-			return found;
+			return semver.gte(semver.coerce (item), since_perl);
 		}
 	);
 
