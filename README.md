@@ -25,26 +25,35 @@ if available.
 
 ## Usage
 
-```
+```yaml
 jobs:
   perl-versions:
     runs-on: ubuntu-latest
-    name: List perl versions
+    name: List Perl versions
     outputs:
       perl-versions: ${{ steps.action.outputs.perl-versions }}
     steps:
-      - name: Perl versions action step
-        id: action
-        uses: happy-barney/github-workflows/perl-versions@main
+      - id: action
+        uses: perl-actions/perl-versions@v1
         with:
-          since-perl: "v5.20"
+          since-perl: v5.20
 
+  ##
+  ## Using perl-versions with perl-tester
+  ##
   test:
     needs:
       - perl-versions
+    name: "Perl ${{ matrix.perl-version }}"
     strategy:
+      fail-fast: false
       matrix:
         perl-versions: ${{ fromJson (needs.perl-versions.outputs.perl-versions) }}
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: perl -V
 
 ```
 
@@ -66,12 +75,12 @@ String containing JSON array with list of Perl versions.
 
 ## Usage
 
-```
+```yaml
 jobs:
   perl-versions:
-    uses: perl-actions/perl-versions/.github/workflows/perl-versions.yml@main
+    uses: perl-actions/perl-versions@v1
     with:
-      since-perl: 5.10
+      since-perl: "5.14"
 
   test:
     needs:
