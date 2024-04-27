@@ -29,22 +29,31 @@ if available.
 jobs:
   perl-versions:
     runs-on: ubuntu-latest
-    name: List perl versions
+    name: List Perl versions
     outputs:
       perl-versions: ${{ steps.action.outputs.perl-versions }}
     steps:
-      - name: Perl versions action step
-        id: action
+      - id: action
         uses: perl-actions/perl-versions@v1
         with:
           since-perl: v5.20
 
+  ##
+  ## Using perl-versions with perl-tester
+  ##
   test:
     needs:
       - perl-versions
+    name: "Perl ${{ matrix.perl-version }}"
     strategy:
+      fail-fast: false
       matrix:
         perl-versions: ${{ fromJson (needs.perl-versions.outputs.perl-versions) }}
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: perl -V
 
 ```
 
@@ -71,7 +80,7 @@ jobs:
   perl-versions:
     uses: perl-actions/perl-versions@v1
     with:
-      since-perl: 5.14
+      since-perl: "5.14"
 
   test:
     needs:
