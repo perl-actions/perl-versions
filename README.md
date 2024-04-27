@@ -25,7 +25,7 @@ if available.
 
 ## Usage
 
-```
+```yaml
 jobs:
   perl-versions:
     runs-on: ubuntu-latest
@@ -35,7 +35,7 @@ jobs:
     steps:
       - name: Perl versions action step
         id: action
-        uses: happy-barney/github-workflows/perl-versions@main
+        uses: perl-actions/perl-versions@v1
         with:
           since-perl: "v5.20"
 
@@ -66,10 +66,10 @@ String containing JSON array with list of Perl versions.
 
 ## Usage
 
-```
+```yaml
 jobs:
   perl-versions:
-    uses: perl-actions/perl-versions/.github/workflows/perl-versions.yml@main
+    uses: perl-actions/perl-versions@v1
     with:
       since-perl: 5.10
 
