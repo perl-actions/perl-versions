@@ -37,7 +37,7 @@ jobs:
         id: action
         uses: perl-actions/perl-versions@v1
         with:
-          since-perl: "v5.20"
+          since-perl: v5.20
 
   test:
     needs:
@@ -71,7 +71,7 @@ jobs:
   perl-versions:
     uses: perl-actions/perl-versions@v1
     with:
-      since-perl: 5.10
+      since-perl: 5.14
 
   test:
     needs:
