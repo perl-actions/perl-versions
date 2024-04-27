@@ -1,13 +1,12 @@
 
 const core   = require('@actions/core');
-const github = require('@actions/github');
+//const github = require('@actions/github');
 const semver = require('semver');
 
 try {
 	const since_perl = semver.coerce (core.getInput('since-perl'));
 	const with_devel = core.getInput('with-devel') == "true";
 
-	let found = false;
 	let available = [
 		"5.8",
 		"5.10", "5.12", "5.14", "5.16", "5.18",
