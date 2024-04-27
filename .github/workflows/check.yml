@@ -4,17 +4,6 @@ on: [push, pull_request]
 
 jobs:
 
-  perl-versions:
-    runs-on: ubuntu-latest
-    name: 'perl-versions default'
-    outputs:
-      perl-versions: ${{ steps.action.outputs.perl-versions }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: "uses perl-versions"
-        id: action
-        uses: ./
-
   since-v520:
     runs-on: ubuntu-latest
     name: 'since v5.20'
@@ -83,15 +72,11 @@ jobs:
 
   check:
     needs:
-      - perl-versions
       - since-v520
       - since-520
       - since-536-with-devel
     runs-on: ubuntu-latest
     steps:
-      - name: "Testing perl-versions"
-        run: |
-          [[ '${{ needs.perl-versions.outputs.perl-versions }}' == '["5.14","5.16","5.18","5.20","5.22","5.24","5.26","5.28","5.30","5.32","5.34","5.36","5.38"]' ]] && echo "ok"
 
       - name: "Testing since-v520"
         run: |

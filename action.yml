@@ -4,7 +4,7 @@ inputs:
   since-perl:
     description: "List all Perl versions since this (including this). Example: 5.10"
     type: string
-    default: "5.14"
+    required: true
   with-devel:
     description: "Whether to include also 'devel' Perl"
     type: boolean
