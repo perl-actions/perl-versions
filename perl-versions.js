@@ -19,7 +19,7 @@ try {
 	let filtered = available.filter (
 		(item) => {
 			if (item == "devel") { return with_devel; }
-			return semver.gte(semver.coerce (item), since_perl);
+			return semver.gte(semver.coerce(item), semver.coerce(since_perl));
 		}
 	);
 
