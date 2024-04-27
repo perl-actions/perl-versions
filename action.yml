@@ -13,5 +13,5 @@ outputs:
   perl-versions:
     description: "JSON containing list of perl versions"
 runs:
-  using: node20
-  main: index.js
+  using: "node20"
+  main: "dist/index.js"

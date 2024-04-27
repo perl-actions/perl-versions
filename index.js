@@ -1,5 +1,4 @@
-const core = require('@actions/core');
-//const github = require('@actions/github');
+const core   = require('@actions/core');
 const semver = require('semver');
 
 try {
@@ -19,7 +18,7 @@ try {
             if (item == "devel") {
                 return with_devel;
             }
-            return semver.gte(semver.coerce(item), semver.coerce(since_perl));
+            return semver.gte(semver.coerce(item), since_perl);
         }
     );
 
