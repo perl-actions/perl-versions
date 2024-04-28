@@ -37,9 +37,10 @@ jobs:
         uses: perl-actions/perl-versions@v1
         with:
           since-perl: v5.20
+          with-devel: false
 
   ##
-  ## Using perl-versions with perl-tester
+  ## Combining perl-versions with perl-tester
   ##
   test:
     needs:
@@ -54,38 +55,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: perl -V
-
+      # adjust that section to fit your distribution
+      - uses: perl-actions/ci-perl-tester-helpers/install-test-helper-deps@main
+      - uses: perl-actions/ci-perl-tester-helpers/cpan-install-build-deps@main
+      - uses: perl-actions/ci-perl-tester-helpers/build-dist@main
+      - uses: perl-actions/ci-perl-tester-helpers/cpan-install-dist-deps@main
+      - uses: perl-actions/ci-perl-tester-helpers/test-dist@main
+        env:
+          AUTHOR_TESTING: 1
 ```
 
-# Reusable workflow
+## Advanced Usages
 
-There is also reusable workflow simplifying call of this action.
+### Altering the values
 
-## Inputs
-
-### since-perl
-
-Forwarded to action.
-
-## Outputs
-
-### perl-version
-
-String containing JSON array with list of Perl versions.
-
-## Usage
+Here is an example to massage the Perl versions to append the string `-buster` to all `5.\d+` versions. (TIMTODY)
 
 ```yaml
-jobs:
   perl-versions:
-    uses: perl-actions/perl-versions@v1
-    with:
-      since-perl: "5.14"
-
-  test:
-    needs:
-      - perl-versions
-    strategy:
-      matrix:
-        perl-versions: ${{ fromJson (needs.perl-versions.outputs.perl-versions) }}
+    runs-on: ubuntu-latest
+    name: List Perl versions
+    outputs:
+      perl-versions: ${{ steps.massage.outputs.perl-versions }}
+    steps:
+      - id: action
+        uses: perl-actions/perl-versions@v1
+        with:
+          since-perl: v5.10
+          with-devel: true
+      - id: massage
+        name: add buster
+        run: |
+          echo '${{ steps.action.outputs.perl-versions }}' > perl.versions
+          perl -pi -e 's/"(\d\.\d+)"/"$1-buster"/g' perl.versions
+          cat perl.versions
+          echo "perl-versions=$(cat perl.versions)" >> $GITHUB_OUTPUT
 ```
