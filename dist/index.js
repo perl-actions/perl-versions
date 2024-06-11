@@ -6117,20 +6117,21 @@ module.exports = require("util");
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-const core   = __nccwpck_require__(2186);
+const core = __nccwpck_require__(2186);
 const semver = __nccwpck_require__(1383);
+
+let available = [
+    "5.8",
+    "5.10", "5.12", "5.14", "5.16", "5.18",
+    "5.20", "5.22", "5.24", "5.26", "5.28",
+    "5.30", "5.32", "5.34", "5.36", "5.38",
+    "5.40",
+    "devel",
+];
 
 try {
     const since_perl = semver.coerce(core.getInput('since-perl'));
     const with_devel = core.getInput('with-devel') == "true";
-
-    let available = [
-        "5.8",
-        "5.10", "5.12", "5.14", "5.16", "5.18",
-        "5.20", "5.22", "5.24", "5.26", "5.28",
-        "5.30", "5.32", "5.34", "5.36", "5.38",
-        "devel",
-    ];
 
     let filtered = available.filter(
         (item) => {
