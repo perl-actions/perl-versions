@@ -80,12 +80,12 @@ jobs:
 
       - name: "Testing since-v520"
         run: |
-          [[ '${{ needs.since-v520.outputs.perl-versions }}' == '["5.20","5.22","5.24","5.26","5.28","5.30","5.32","5.34","5.36","5.38"]' ]] && echo "ok"
+          [[ '${{ needs.since-v520.outputs.perl-versions }}' == '["5.20","5.22","5.24","5.26","5.28","5.30","5.32","5.34","5.36","5.38","5.40"]' ]] && echo "ok"
 
       - name: "Testing since-520"
         run: |
-          [[ '${{ needs.since-520.outputs.perl-versions }}' == '["5.20","5.22","5.24","5.26","5.28","5.30","5.32","5.34","5.36","5.38"]' ]] && echo "ok"
+          [[ '${{ needs.since-520.outputs.perl-versions }}' == '["5.20","5.22","5.24","5.26","5.28","5.30","5.32","5.34","5.36","5.38","5.40"]' ]] && echo "ok"
 
       - name: "Testing since-536-with-devel"
         run: |
-          [[ '${{ needs.since-536-with-devel.outputs.perl-versions }}' == '["5.36","5.38","devel"]' ]] && echo "ok"
+          [[ '${{ needs.since-536-with-devel.outputs.perl-versions }}' == '["5.36","5.38","5.40","devel"]' ]] && echo "ok"
