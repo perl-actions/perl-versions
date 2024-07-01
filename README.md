@@ -49,7 +49,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        perl-versions: ${{ fromJson (needs.perl-versions.outputs.perl-versions) }}
+        perl-version: ${{ fromJson (needs.perl-versions.outputs.perl-versions) }}
     container:
       image: perldocker/perl-tester:${{ matrix.perl-version }}
     steps:
