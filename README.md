@@ -16,6 +16,15 @@ Returns perl versions since this (including).
 
 When unknown version is provided, returns empty list.
 
+### to-perl
+
+Optional parameter.
+
+When set, returns perl versions up to this version (including this version).
+Can be combined with `since-perl` to get a specific range of versions.
+
+When not set, returns all versions from `since-perl` onwards.
+
 ### with-devel
 
 Default: `false`
@@ -37,6 +46,7 @@ jobs:
         uses: perl-actions/perl-versions@v1
         with:
           since-perl: v5.20
+          to-perl: v5.36
           with-devel: false
 
   ##
