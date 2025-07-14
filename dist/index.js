@@ -30267,6 +30267,8 @@ let available = [
 
 try {
     const since_perl = semver.coerce(core.getInput('since-perl'));
+    const to_perl_input = core.getInput('to-perl');
+    const to_perl = to_perl_input ? semver.coerce(to_perl_input) : null;
     const with_devel = core.getInput('with-devel') == "true";
 
     let filtered = available.filter(
@@ -30274,7 +30276,10 @@ try {
             if (item == "devel") {
                 return with_devel;
             }
-            return semver.gte(semver.coerce(item), since_perl);
+            const version = semver.coerce(item);
+            const meetsLowerBound = semver.gte(version, since_perl);
+            const meetsUpperBound = !to_perl || semver.lte(version, to_perl);
+            return meetsLowerBound && meetsUpperBound;
         }
     );
 
