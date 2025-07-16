@@ -3,108 +3,66 @@ name: "Check Workflow"
 on: [push, pull_request]
 
 jobs:
-
-  since-v520:
+  test-action:
     runs-on: ubuntu-latest
-    name: 'since v5.20'
-    outputs:
-      perl-versions: ${{ steps.action.outputs.perl-versions }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: "uses perl-versions"
-        id: action
-        uses: ./
-        with:
-          since-perl: v5.20
-
-  since-520:
-    runs-on: ubuntu-latest
-    name: 'since 5.20'
-    outputs:
-      perl-versions: ${{ steps.action.outputs.perl-versions }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: "uses perl-versions"
-        id: action
-        uses: ./
-        with:
-          since-perl: "5.20"
-
-  since-536-with-devel:
-    runs-on: ubuntu-latest
-    name: 'since 5.36 with devel'
-    outputs:
-      perl-versions: ${{ steps.action.outputs.perl-versions }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: "uses perl-versions"
-        id: action
-        uses: ./
-        with:
-          since-perl: 5.36
-          with-devel: true
-
-  since-524-to-532:
-    runs-on: ubuntu-latest
-    name: 'since 5.24 to 5.32'
-    outputs:
-      perl-versions: ${{ steps.action.outputs.perl-versions }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: "uses perl-versions"
-        id: action
-        uses: ./
-        with:
-          since-perl: "5.24"
-          to-perl: "5.32"
-
-  test-matrix:
-    runs-on: ubuntu-latest
-    needs:
-      - since-536-with-devel
     strategy:
-      fail-fast: false
       matrix:
-        perl-versions: ${{ fromJson (needs.since-536-with-devel.outputs.perl-versions) }}
-    steps:
-      - run: echo "Hello"
+        include:
+          - job-id:     since-v520
+            name:       "Since v5.20"
+            since-perl: "v5.20"
+            expected:   '["5.20","5.22","5.24","5.26","5.28","5.30","5.32","5.34","5.36","5.38","5.40","5.42"]'
 
-  perl-tester:
-    runs-on: ubuntu-latest
-    needs:
-      - since-536-with-devel
-    name: "Perl ${{ matrix.perl-version }}"
-    strategy:
-      fail-fast: false
-      matrix:
-        perl-version: ${{ fromJson (needs.since-536-with-devel.outputs.perl-versions) }}
-    container:
-      image: perldocker/perl-tester:${{ matrix.perl-version }}
+          - job-id:     since-520
+            name:       "Since 5.20"
+            since-perl: "5.20"
+            expected:   '["5.20","5.22","5.24","5.26","5.28","5.30","5.32","5.34","5.36","5.38","5.40","5.42"]'
+
+          - job-id:     since-536-with-devel
+            name:       "Since 5.36 with devel"
+            since-perl: "5.36"
+            with-devel: "true"
+            expected:   '["5.36","5.38","5.40","5.42","devel"]'
+
+          - job-id:     since-524-to-532
+            name:       "Since 5.24 until 5.32"
+            since-perl: "5.24"
+            until-perl: "5.32"
+            expected:   '["5.24","5.26","5.28","5.30","5.32"]'
+
+          - job-id:     with-devel-and-until
+            name:       "With devel and until-perl"
+            since-perl: "5.36"
+            until-perl: "5.40"
+            with-devel: "true"
+            expected:   '["5.36","5.38","5.40","devel"]'
+
+          - job-id:     single-version
+            name:       "Single version"
+            since-perl: "5.32"
+            until-perl: "5.32"
+            expected:   '["5.32"]'
+
+          - job-id:     oldest-supported
+            name:       "Oldest supported version is 5.8"
+            since-perl: "5.6"
+            until-perl: "5.14"
+            expected:   '["5.8","5.10","5.12","5.14"]'
+
     steps:
       - uses: actions/checkout@v4
-      - run: perl -V
 
-  check:
-    needs:
-      - since-v520
-      - since-520
-      - since-536-with-devel
-      - since-524-to-532
-    runs-on: ubuntu-latest
-    steps:
+      - name: "Call action - ${{ matrix.name }}"
+        id: call-action
+        uses: ./
+        with:
+          since-perl: ${{ matrix.since-perl }}
+          until-perl: ${{ matrix.until-perl || null }}
+          with-devel: ${{ matrix.with-devel || null }}
 
-      - name: "Testing since-v520"
-        run: |
-          [[ '${{ needs.since-v520.outputs.perl-versions }}' == '["5.20","5.22","5.24","5.26","5.28","5.30","5.32","5.34","5.36","5.38","5.40","5.42"]' ]] && echo "ok"
-
-      - name: "Testing since-520"
-        run: |
-          [[ '${{ needs.since-520.outputs.perl-versions }}' == '["5.20","5.22","5.24","5.26","5.28","5.30","5.32","5.34","5.36","5.38","5.40","5.42"]' ]] && echo "ok"
-
-      - name: "Testing since-536-with-devel"
-        run: |
-          [[ '${{ needs.since-536-with-devel.outputs.perl-versions }}' == '["5.36","5.38","5.40","5.42","devel"]' ]] && echo "ok"
-
-      - name: "Testing since-524-to-532"
-        run: |
-          [[ '${{ needs.since-524-to-532.outputs.perl-versions }}' == '["5.24","5.26","5.28","5.30","5.32"]' ]] && echo "ok"
+      - name: Validate output - ${{ matrix.name }}
+        uses: prompt/actions-assert@v4
+        with:
+          assertion: npm://@assertions/is-equal:v1
+          actual:    ${{ steps.call-action.outputs.perl-versions }}
+          expected:  ${{ matrix.expected }}
