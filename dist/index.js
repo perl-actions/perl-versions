@@ -30265,10 +30265,14 @@ let available = [
     "devel",
 ];
 
+function parse_input_version (input_name) {
+    // semver.coerce() returns null for both empty string and null inputs
+    return semver.coerce (core.getInput (input_name));
+}
+
 try {
-    const since_perl = semver.coerce(core.getInput('since-perl'));
-    const to_perl_input = core.getInput('to-perl');
-    const to_perl = to_perl_input ? semver.coerce(to_perl_input) : null;
+    const since_perl = parse_input_version ('since-perl');
+    const until_perl = parse_input_version ('until-perl');
     const with_devel = core.getInput('with-devel') == "true";
 
     let filtered = available.filter(
@@ -30278,7 +30282,7 @@ try {
             }
             const version = semver.coerce(item);
             const meetsLowerBound = semver.gte(version, since_perl);
-            const meetsUpperBound = !to_perl || semver.lte(version, to_perl);
+            const meetsUpperBound = !until_perl || semver.lte(version, until_perl);
             return meetsLowerBound && meetsUpperBound;
         }
     );

@@ -5,7 +5,7 @@ inputs:
     description: "List all Perl versions since this (including this). Example: 5.10"
     type: string
     required: true
-  to-perl:
+  until-perl:
     description: "List all Perl versions up to this (including this). Example: 5.30"
     type: string
     required: false

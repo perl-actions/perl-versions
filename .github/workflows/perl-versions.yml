@@ -8,6 +8,15 @@ on:
         type: string
         required: true
         default: "5.10"
+      until-perl:
+        description: "List all Perl versions up to this (including this). Example: 5.30"
+        type: string
+        required: false
+      with-devel:
+        description: "Whether to include also 'devel' Perl"
+        type: boolean
+        required: false
+        default: false
     outputs:
       perl-versions:
         value: ${{ jobs.perl-versions.outputs.perl-versions }}
@@ -24,4 +33,6 @@ jobs:
         uses: perl-actions/perl-versions@main
         with:
           since-perl: ${{ inputs.since-perl }}
+          until-perl: ${{ inputs.until-perl || null }}
+          with-devel: ${{ inputs.with-devel || null }}
 
