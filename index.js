@@ -18,11 +18,11 @@ function parse_input_version (input_name) {
 try {
     const since_perl = parse_input_version ('since-perl');
     const until_perl = parse_input_version ('until-perl');
-    const with_devel = core.getInput('with-devel') == "true";
+    const with_devel = core.getInput('with-devel') === "true";
 
     const filtered = available.filter(
         (item) => {
-            if (item == "devel") {
+            if (item === "devel") {
                 return with_devel;
             }
             const version = semver.coerce(item);
