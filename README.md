@@ -16,7 +16,7 @@ Returns perl versions since this (including).
 
 When unknown version is provided, returns empty list.
 
-### to-perl
+### until-perl
 
 Optional parameter.
 
@@ -46,7 +46,7 @@ jobs:
         uses: perl-actions/perl-versions@v1
         with:
           since-perl: v5.20
-          to-perl: v5.36
+          until-perl: v5.36
           with-devel: false
 
   ##
