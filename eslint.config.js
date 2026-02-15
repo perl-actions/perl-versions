@@ -1,10 +1,14 @@
-const globals= require("globals");
+const globals = require("globals");
 const pluginJs = require("@eslint/js");
 
-
 module.exports = [
-    {files: ["**/*.js"], languageOptions: {sourceType: "commonjs"}},
-    {languageOptions: { globals: globals.node }},
+    { files: ["**/*.js"], languageOptions: { sourceType: "commonjs" } },
+    { languageOptions: { globals: globals.node } },
     pluginJs.configs.recommended,
-    {rules: { "prefer-const": "error" }},
+    {
+        rules: {
+            "prefer-const": "error",
+            eqeqeq: "error",
+        },
+    },
 ];
