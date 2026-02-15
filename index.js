@@ -1,7 +1,7 @@
 const core = require('@actions/core');
 const semver = require('semver');
 
-let available = [
+const available = [
     "5.8",
     "5.10", "5.12", "5.14", "5.16", "5.18",
     "5.20", "5.22", "5.24", "5.26", "5.28",
@@ -20,7 +20,7 @@ try {
     const until_perl = parse_input_version ('until-perl');
     const with_devel = core.getInput('with-devel') == "true";
 
-    let filtered = available.filter(
+    const filtered = available.filter(
         (item) => {
             if (item == "devel") {
                 return with_devel;
