@@ -9,7 +9,11 @@ const available = [
     "devel",
 ];
 
-function filterVersions(since_perl, until_perl, with_devel) {
+function decode_version(input) {
+    return semver.coerce(input);
+}
+
+function perl_versions({ since_perl, until_perl, with_devel }) {
     return available.filter((item) => {
         if (item === "devel") {
             return with_devel;
@@ -21,4 +25,4 @@ function filterVersions(since_perl, until_perl, with_devel) {
     });
 }
 
-module.exports = { available, filterVersions };
+module.exports = { perl_versions, decode_version };

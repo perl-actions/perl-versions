@@ -15,7 +15,11 @@ const available = [
     "devel",
 ];
 
-function filterVersions(since_perl, until_perl, with_devel) {
+function decode_version(input) {
+    return semver.coerce(input);
+}
+
+function perl_versions({ since_perl, until_perl, with_devel }) {
     return available.filter((item) => {
         if (item === "devel") {
             return with_devel;
@@ -27,7 +31,7 @@ function filterVersions(since_perl, until_perl, with_devel) {
     });
 }
 
-module.exports = { available, filterVersions };
+module.exports = { perl_versions, decode_version };
 
 
 /***/ }),
@@ -30285,12 +30289,11 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(2186);
-const semver = __nccwpck_require__(1383);
-const { filterVersions } = __nccwpck_require__(2909);
+const { perl_versions, decode_version } = __nccwpck_require__(2909);
 
 function parse_input_version (input_name) {
     // semver.coerce() returns null for both empty string and null inputs
-    return semver.coerce (core.getInput (input_name));
+    return decode_version (core.getInput (input_name));
 }
 
 try {
@@ -30298,7 +30301,7 @@ try {
     const until_perl = parse_input_version ('until-perl');
     const with_devel = core.getInput('with-devel') === "true";
 
-    const filtered = filterVersions(since_perl, until_perl, with_devel);
+    const filtered = perl_versions({ since_perl, until_perl, with_devel });
 
     console.log('perl-versions', JSON.stringify(filtered));
     core.setOutput('perl-versions', JSON.stringify(filtered));

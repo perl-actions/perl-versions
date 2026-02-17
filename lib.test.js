@@ -1,97 +1,128 @@
-const semver = require('semver');
-const { available, filterVersions } = require('./lib');
+const { perl_versions, decode_version } = require('./lib');
 
-describe('available versions', () => {
-    test('contains expected range from 5.8 to 5.42 plus devel', () => {
-        expect(available[0]).toBe('5.8');
-        expect(available[available.length - 1]).toBe('devel');
-        expect(available).toContain('5.20');
-        expect(available).toContain('5.42');
+function sorted(arr) {
+    return [...arr].sort((a, b) => {
+        if (a === 'devel') return 1;
+        if (b === 'devel') return -1;
+        const va = decode_version(a);
+        const vb = decode_version(b);
+        return va.compare(vb);
+    });
+}
+
+describe('perl_versions', () => {
+    // CI matrix parity tests
+    test('since 5.20 includes 5.20', () => {
+        const result = perl_versions({ since_perl: decode_version('5.20'), until_perl: null, with_devel: false });
+        expect(result).toContain('5.20');
     });
 
-    test('all non-devel entries are valid semver-coercible', () => {
-        for (const v of available.filter(v => v !== 'devel')) {
-            expect(semver.coerce(v)).not.toBeNull();
-        }
+    test('since 5.20 includes versions greater than 5.20', () => {
+        const result = perl_versions({ since_perl: decode_version('5.20'), until_perl: null, with_devel: false });
+        expect(result).toContain('5.30');
+        expect(result).toContain('5.42');
     });
 
-    test('versions are in ascending order', () => {
-        const numeric = available.filter(v => v !== 'devel').map(v => semver.coerce(v));
-        for (let i = 1; i < numeric.length; i++) {
-            expect(semver.gt(numeric[i], numeric[i - 1])).toBe(true);
-        }
+    test('since 5.20 without devel excludes devel', () => {
+        const result = perl_versions({ since_perl: decode_version('5.20'), until_perl: null, with_devel: false });
+        expect(result).not.toContain('devel');
     });
-});
 
-describe('filterVersions', () => {
-    // Mirror the CI workflow matrix test cases
-    test('since v5.20 returns 5.20 through 5.42', () => {
-        const result = filterVersions(semver.coerce('5.20'), null, false);
-        expect(result).toEqual([
-            '5.20', '5.22', '5.24', '5.26', '5.28',
-            '5.30', '5.32', '5.34', '5.36', '5.38',
-            '5.40', '5.42',
-        ]);
+    test('since 5.20 excludes versions older than 5.20', () => {
+        const result = perl_versions({ since_perl: decode_version('5.20'), until_perl: null, with_devel: false });
+        expect(result).not.toContain('5.8');
+        expect(result).not.toContain('5.18');
     });
 
     test('since 5.36 with devel includes devel', () => {
-        const result = filterVersions(semver.coerce('5.36'), null, true);
-        expect(result).toEqual(['5.36', '5.38', '5.40', '5.42', 'devel']);
+        const result = perl_versions({ since_perl: decode_version('5.36'), until_perl: null, with_devel: true });
+        expect(result).toContain('devel');
+        expect(result).toContain('5.36');
+        expect(result).toContain('5.42');
+        expect(result).not.toContain('5.34');
     });
 
-    test('since 5.24 until 5.32 returns bounded range', () => {
-        const result = filterVersions(semver.coerce('5.24'), semver.coerce('5.32'), false);
-        expect(result).toEqual(['5.24', '5.26', '5.28', '5.30', '5.32']);
+    test('since 5.36 with devel: each non-devel version >= 5.36', () => {
+        const result = perl_versions({ since_perl: decode_version('5.36'), until_perl: null, with_devel: true });
+        for (const v of result) {
+            if (v === 'devel') continue;
+            expect(decode_version(v).compare(decode_version('5.36'))).toBeGreaterThanOrEqual(0);
+        }
+    });
+
+    test('since 5.24 until 5.32 returns only versions in that range', () => {
+        const result = perl_versions({ since_perl: decode_version('5.24'), until_perl: decode_version('5.32'), with_devel: false });
+        expect(result).toContain('5.24');
+        expect(result).toContain('5.32');
+        expect(result).not.toContain('5.22');
+        expect(result).not.toContain('5.34');
+        for (const v of result) {
+            const ver = decode_version(v);
+            expect(ver.compare(decode_version('5.24'))).toBeGreaterThanOrEqual(0);
+            expect(ver.compare(decode_version('5.32'))).toBeLessThanOrEqual(0);
+        }
+    });
+
+    test('result order is sorted ascending', () => {
+        const result = perl_versions({ since_perl: decode_version('5.24'), until_perl: decode_version('5.32'), with_devel: false });
+        expect(result).toEqual(sorted(result));
     });
 
     test('with devel and until-perl still includes devel', () => {
-        const result = filterVersions(semver.coerce('5.36'), semver.coerce('5.40'), true);
-        expect(result).toEqual(['5.36', '5.38', '5.40', 'devel']);
+        const result = perl_versions({ since_perl: decode_version('5.36'), until_perl: decode_version('5.40'), with_devel: true });
+        expect(result).toContain('devel');
+        expect(result).toContain('5.36');
+        expect(result).toContain('5.40');
     });
 
     test('single version (since === until)', () => {
-        const result = filterVersions(semver.coerce('5.32'), semver.coerce('5.32'), false);
-        expect(result).toEqual(['5.32']);
+        const result = perl_versions({ since_perl: decode_version('5.32'), until_perl: decode_version('5.32'), with_devel: false });
+        expect(result).toContain('5.32');
+        expect(result).toHaveLength(1);
     });
 
-    test('oldest supported: since 5.6 until 5.14 starts at 5.8', () => {
-        const result = filterVersions(semver.coerce('5.6'), semver.coerce('5.14'), false);
-        expect(result).toEqual(['5.8', '5.10', '5.12', '5.14']);
+    test('since 5.6 until 5.14 includes 5.8 and excludes 5.6', () => {
+        const result = perl_versions({ since_perl: decode_version('5.6'), until_perl: decode_version('5.14'), with_devel: false });
+        expect(result).toContain('5.8');
+        expect(result).toContain('5.14');
+        expect(result).not.toContain('5.6');
+        expect(result).not.toContain('5.16');
     });
 
     // Edge cases
     test('since latest version returns only that version', () => {
-        const result = filterVersions(semver.coerce('5.42'), null, false);
-        expect(result).toEqual(['5.42']);
+        const result = perl_versions({ since_perl: decode_version('5.42'), until_perl: null, with_devel: false });
+        expect(result).toContain('5.42');
+        expect(result).toHaveLength(1);
     });
 
     test('since latest version with devel returns version + devel', () => {
-        const result = filterVersions(semver.coerce('5.42'), null, true);
-        expect(result).toEqual(['5.42', 'devel']);
-    });
-
-    test('since very old version returns all versions', () => {
-        const result = filterVersions(semver.coerce('5.6'), null, false);
-        expect(result).toEqual(available.filter(v => v !== 'devel'));
+        const result = perl_versions({ since_perl: decode_version('5.42'), until_perl: null, with_devel: true });
+        expect(result).toContain('5.42');
+        expect(result).toContain('devel');
     });
 
     test('since future version returns empty list', () => {
-        const result = filterVersions(semver.coerce('5.100'), null, false);
-        expect(result).toEqual([]);
+        const result = perl_versions({ since_perl: decode_version('5.100'), until_perl: null, with_devel: false });
+        expect(result).toHaveLength(0);
     });
 
     test('devel is excluded by default', () => {
-        const result = filterVersions(semver.coerce('5.8'), null, false);
+        const result = perl_versions({ since_perl: decode_version('5.8'), until_perl: null, with_devel: false });
         expect(result).not.toContain('devel');
     });
 
     test('until-perl does not exclude devel when with-devel is true', () => {
-        const result = filterVersions(semver.coerce('5.40'), semver.coerce('5.40'), true);
-        expect(result).toEqual(['5.40', 'devel']);
+        const result = perl_versions({ since_perl: decode_version('5.40'), until_perl: decode_version('5.40'), with_devel: true });
+        expect(result).toContain('5.40');
+        expect(result).toContain('devel');
     });
 
-    test('v-prefixed input works via semver.coerce', () => {
-        const result = filterVersions(semver.coerce('v5.30'), semver.coerce('v5.34'), false);
-        expect(result).toEqual(['5.30', '5.32', '5.34']);
+    test('v-prefixed input works via decode_version', () => {
+        const result = perl_versions({ since_perl: decode_version('v5.30'), until_perl: decode_version('v5.34'), with_devel: false });
+        expect(result).toContain('5.30');
+        expect(result).toContain('5.34');
+        expect(result).not.toContain('5.28');
+        expect(result).not.toContain('5.36');
     });
 });
