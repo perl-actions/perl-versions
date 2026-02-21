@@ -22,6 +22,22 @@ describe ('decode_version', () => {
     test ('returns null for null input', () => {
         expect (decode_version (null)).toBeNull ();
     });
+
+    test ('normalizes patch version to major.minor', () => {
+        const v = decode_version ('5.8.1');
+        expect (v).not.toBeNull ();
+        expect (v.major).toBe (5);
+        expect (v.minor).toBe (8);
+        expect (v.patch).toBe (0);
+    });
+
+    test ('normalizes three-part version to major.minor', () => {
+        const v = decode_version ('5.36.3');
+        expect (v).not.toBeNull ();
+        expect (v.major).toBe (5);
+        expect (v.minor).toBe (36);
+        expect (v.patch).toBe (0);
+    });
 });
 
 describe ('perl_versions ()', () => {
@@ -158,6 +174,31 @@ describe ('perl_versions ()', () => {
         test ('it should include devel alongside the exact version', () => {
             expect (result).toContain ('5.40');
             expect (result).toContain ('devel');
+        });
+    });
+
+    describe ('with patch version in since_perl (issue #8)', () => {
+        const result = act ({ since_perl: '5.8.1', until_perl: '5.14' });
+
+        test ('it should include 5.8 despite patch version input', () => {
+            expect (result).toContain ('5.8');
+        });
+
+        test ('it should include versions up to the upper bound', () => {
+            expect (result).toContain ('5.10');
+            expect (result).toContain ('5.14');
+        });
+    });
+
+    describe ('with patch version in until_perl', () => {
+        const result = act ({ since_perl: '5.30', until_perl: '5.36.3' });
+
+        test ('it should include the upper bound series', () => {
+            expect (result).toContain ('5.36');
+        });
+
+        test ('it should not include versions beyond the series', () => {
+            expect (result).not.toContain ('5.38');
         });
     });
 });

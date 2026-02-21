@@ -69,6 +69,12 @@ jobs:
             until-perl: "5.14"
             expected:   '["5.8","5.10","5.12","5.14"]'
 
+          - job-id:     patch-version-input
+            name:       "Patch version 5.8.1 includes 5.8 series"
+            since-perl: "5.8.1"
+            until-perl: "5.14"
+            expected:   '["5.8","5.10","5.12","5.14"]'
+
     steps:
       - uses: actions/checkout@v4
 
