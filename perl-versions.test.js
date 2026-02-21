@@ -1,4 +1,4 @@
-const { perl_versions, decode_version, resolve_single_out, available_targets } = require ('./perl-versions');
+const { perl_versions, decode_version, latest_stable_version, resolve_single_out, available_targets } = require ('./perl-versions');
 
 describe ('decode_version', () => {
     test ('parses numeric version string', () => {
@@ -37,6 +37,27 @@ describe ('decode_version', () => {
         expect (v.major).toBe (5);
         expect (v.minor).toBe (36);
         expect (v.patch).toBe (0);
+    });
+
+    test ('resolves latest to the highest stable version', () => {
+        const v = decode_version ('latest');
+        expect (v).not.toBeNull ();
+        expect (v.major).toBe (5);
+        expect (v.minor).toBe (decode_version (latest_stable_version ()).minor);
+    });
+});
+
+describe ('latest_stable_version', () => {
+    test ('returns the highest non-devel version', () => {
+        const latest = latest_stable_version ();
+        expect (latest).not.toBe ('devel');
+        expect (latest).toMatch (/^\d+\.\d+$/);
+    });
+
+    test ('returns a version present in the available list', () => {
+        const latest = latest_stable_version ();
+        const result = perl_versions ({ since_perl: decode_version (latest) });
+        expect (result).toContain (latest);
     });
 });
 
@@ -175,6 +196,57 @@ describe ('perl_versions ()', () => {
         test ('it should include devel alongside the exact version', () => {
             expect (result).toContain ('5.40');
             expect (result).toContain ('devel');
+        });
+    });
+
+    describe ('with since_perl=latest', () => {
+        const result = act ({ since_perl: 'latest' });
+
+        test ('it should return only the latest stable version', () => {
+            expect (result).toContain (latest_stable_version ());
+            expect (result).toHaveLength (1);
+        });
+
+        test ('it should not include devel', () => {
+            expect (result).not.toContain ('devel');
+        });
+    });
+
+    describe ('with since_perl=latest and with_devel', () => {
+        const result = act ({ since_perl: 'latest', with_devel: true });
+
+        test ('it should include the latest stable version', () => {
+            expect (result).toContain (latest_stable_version ());
+        });
+
+        test ('it should include devel', () => {
+            expect (result).toContain ('devel');
+        });
+
+        test ('it should return exactly 2 entries', () => {
+            expect (result).toHaveLength (2);
+        });
+    });
+
+    describe ('with until_perl=latest', () => {
+        const result = act ({ since_perl: '5.38', until_perl: 'latest' });
+
+        test ('it should include versions up to latest', () => {
+            expect (result).toContain ('5.38');
+            expect (result).toContain (latest_stable_version ());
+        });
+
+        test ('it should not include devel', () => {
+            expect (result).not.toContain ('devel');
+        });
+    });
+
+    describe ('with since_perl=latest and until_perl=latest', () => {
+        const result = act ({ since_perl: 'latest', until_perl: 'latest' });
+
+        test ('it should return exactly one version', () => {
+            expect (result).toHaveLength (1);
+            expect (result).toContain (latest_stable_version ());
         });
     });
 

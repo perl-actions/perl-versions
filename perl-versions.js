@@ -21,7 +21,15 @@ const available_versions = {
     ],
 };
 
+function latest_stable_version () {
+    const stable = all_versions.filter ((v) => v !== 'devel');
+    return stable[stable.length - 1];
+}
+
 function decode_version(input) {
+    if (input === 'latest') {
+        return semver.coerce(latest_stable_version());
+    }
     const version = semver.coerce(input);
     if (!version) {
         return null;
@@ -100,6 +108,7 @@ function available_targets() {
 module.exports = {
     perl_versions,
     decode_version,
+    latest_stable_version,
     resolve_single_out,
     available_targets
 };

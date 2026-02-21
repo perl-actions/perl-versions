@@ -3,14 +3,24 @@
 
 Github action for your matrix to generate list of perls since given.
 
+## Available versions
+
+For list of available perl versions check
+[docker-perl-tester](https://github.com/Perl/docker-perl-tester#using-docker-images-for-your-projects).
+
+Both `since-perl` and `until-perl` accept version numbers in the following formats:
+
+| Format | Example | Description |
+|--------|---------|-------------|
+| Numeric | `5.20` | Standard version number |
+| V-prefixed | `v5.20` | Version with `v` prefix |
+| `latest` | `latest` | Symbolic version — the newest stable Perl release |
+
 ## Parameters
 
 ### since-perl
 
 Required parameter.
-
-For list of available perl versions check
-[docker-perl-tester](https://github.com/Perl/docker-perl-tester#using-docker-images-for-your-projects)
 
 Returns perl versions since this (including).
 
@@ -18,12 +28,10 @@ When unknown version is provided, returns empty list.
 
 ### until-perl
 
-Optional parameter.
+Default: `latest`
 
-When set, returns perl versions up to this version (including this version).
+Returns perl versions up to this version (including this version).
 Can be combined with `since-perl` to get a specific range of versions.
-
-When not set, returns all versions from `since-perl` onwards.
 
 ### with-devel
 
@@ -33,6 +41,8 @@ When set to `true`, returned list will also include current `devel` version of P
 if available.
 
 ## Usage
+
+### Version range
 
 ```yaml
 jobs:
@@ -45,8 +55,8 @@ jobs:
       - id: action
         uses: perl-actions/perl-versions@v1
         with:
-          since-perl: v5.20
-          until-perl: v5.36
+          since-perl: 5.20
+          until-perl: 5.36
           with-devel: false
 
   ##
@@ -75,6 +85,28 @@ jobs:
           AUTHOR_TESTING: 1
 ```
 
+### Latest stable only
+
+Use the `latest` symbolic version with `since-perl` to get only the newest stable
+Perl (and optionally devel):
+
+```yaml
+      - id: action
+        uses: perl-actions/perl-versions@v1
+        with:
+          since-perl: latest
+          with-devel: true
+```
+
+### All versions from a specific release
+
+```yaml
+      - id: action
+        uses: perl-actions/perl-versions@v1
+        with:
+          since-perl: 5.20
+```
+
 ## Advanced Usages
 
 ### Altering the values
@@ -91,7 +123,7 @@ Here is an example to massage the Perl versions to append the string `-buster` t
       - id: action
         uses: perl-actions/perl-versions@v1
         with:
-          since-perl: v5.10
+          since-perl: 5.10
           with-devel: true
       - id: massage
         name: add buster
