@@ -4,10 +4,10 @@
     "description": "List available Perl versions",
     "main": "index.js",
     "scripts": {
-        "lint": "eslint index.js",
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "lint": "eslint index.js perl-versions.js",
+        "test": "jest",
         "build": "ncc build index.js",
-        "pretty": "js-beautify --editorconfig -r index.js"
+        "pretty": "js-beautify --editorconfig -r index.js perl-versions.js"
     },
     "repository": {
         "type": "git",
@@ -29,6 +29,7 @@
         "@vercel/ncc": "^0.34.0",
         "eslint": "^9.30.1",
         "globals": "^16.3.0",
+        "jest": "^30.2.0",
         "js-beautify": "^1.15.4",
         "prettier": "^3.8.1"
     }
