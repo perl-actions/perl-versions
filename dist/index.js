@@ -28353,7 +28353,15 @@ const available = [
     'devel',
 ];
 
+function latest_stable_version () {
+    const stable = available.filter ((v) => v !== 'devel');
+    return stable[stable.length - 1];
+}
+
 function decode_version (input) {
+    if (input === 'latest') {
+        return semver.coerce (latest_stable_version ());
+    }
     return semver.coerce (input);
 }
 
@@ -28369,7 +28377,7 @@ function perl_versions ({ since_perl, until_perl, with_devel } = {}) {
     });
 }
 
-module.exports = { perl_versions, decode_version };
+module.exports = { perl_versions, decode_version, latest_stable_version };
 
 
 /***/ }),

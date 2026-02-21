@@ -3,14 +3,24 @@
 
 Github action for your matrix to generate list of perls since given.
 
+## Available versions
+
+For list of available perl versions check
+[docker-perl-tester](https://github.com/Perl/docker-perl-tester#using-docker-images-for-your-projects).
+
+Both `since-perl` and `until-perl` accept version numbers in the following formats:
+
+| Format | Example | Description |
+|--------|---------|-------------|
+| Numeric | `5.20` | Standard version number |
+| V-prefixed | `v5.20` | Version with `v` prefix |
+| `latest` | `latest` | Symbolic version — the newest stable Perl release |
+
 ## Parameters
 
 ### since-perl
 
-Required parameter.
-
-For list of available perl versions check
-[docker-perl-tester](https://github.com/Perl/docker-perl-tester#using-docker-images-for-your-projects)
+Default: `latest`
 
 Returns perl versions since this (including).
 
@@ -34,6 +44,8 @@ if available.
 
 ## Usage
 
+### Version range
+
 ```yaml
 jobs:
   perl-versions:
@@ -45,8 +57,8 @@ jobs:
       - id: action
         uses: perl-actions/perl-versions@v1
         with:
-          since-perl: v5.20
-          until-perl: v5.36
+          since-perl: 5.20
+          until-perl: 5.36
           with-devel: false
 
   ##
@@ -75,6 +87,27 @@ jobs:
           AUTHOR_TESTING: 1
 ```
 
+### Latest stable only
+
+Since `latest` is the default value for `since-perl`, the simplest usage returns
+only the latest stable Perl (and optionally devel):
+
+```yaml
+      - id: action
+        uses: perl-actions/perl-versions@v1
+        with:
+          with-devel: true
+```
+
+### All versions from a specific release
+
+```yaml
+      - id: action
+        uses: perl-actions/perl-versions@v1
+        with:
+          since-perl: 5.20
+```
+
 ## Advanced Usages
 
 ### Altering the values
@@ -91,7 +124,7 @@ Here is an example to massage the Perl versions to append the string `-buster` t
       - id: action
         uses: perl-actions/perl-versions@v1
         with:
-          since-perl: v5.10
+          since-perl: 5.10
           with-devel: true
       - id: massage
         name: add buster

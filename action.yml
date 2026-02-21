@@ -2,11 +2,11 @@ name: 'Perl versions'
 description: 'Generate Perl versions list for your matrix'
 inputs:
   since-perl:
-    description: "List all Perl versions since this (including this). Example: 5.10"
+    description: "List all Perl versions since this (including this). See README for available versions and formats."
     type: string
-    required: true
+    default: 'latest'
   until-perl:
-    description: "List all Perl versions up to this (including this). Example: 5.30"
+    description: "List all Perl versions up to this (including this). See README for available versions and formats."
     type: string
     required: false
   with-devel:

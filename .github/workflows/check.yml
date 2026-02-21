@@ -69,6 +69,17 @@ jobs:
             until-perl: "5.14"
             expected:   '["5.8","5.10","5.12","5.14"]'
 
+          - job-id:     latest-only
+            name:       "Latest stable version only"
+            since-perl: "latest"
+            expected:   '["5.42"]'
+
+          - job-id:     latest-with-devel
+            name:       "Latest stable with devel"
+            since-perl: "latest"
+            with-devel: "true"
+            expected:   '["5.42","devel"]'
+
     steps:
       - uses: actions/checkout@v4
 
