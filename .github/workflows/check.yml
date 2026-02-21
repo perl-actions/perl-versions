@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - run: npm ci
       - run: npm run lint
 
@@ -56,6 +56,12 @@ jobs:
           - job-id:     oldest-supported
             name:       "Oldest supported version is 5.8"
             since-perl: "5.6"
+            until-perl: "5.14"
+            expected:   '["5.8","5.10","5.12","5.14"]'
+
+          - job-id:     patch-version-input
+            name:       "Patch version 5.8.1 includes 5.8 series"
+            since-perl: "5.8.1"
             until-perl: "5.14"
             expected:   '["5.8","5.10","5.12","5.14"]'
 

@@ -20,14 +20,23 @@ try {
     const until_perl = parse_input_version ('until-perl');
     const with_devel = core.getInput('with-devel') === "true";
 
+    // Normalize to major.minor — available versions are major.minor only,
+    // so "5.8.1" should match the "5.8" series (resolves #8)
+    const since_minor = since_perl
+        ? semver.coerce (`${since_perl.major}.${since_perl.minor}`)
+        : since_perl;
+    const until_minor = until_perl
+        ? semver.coerce (`${until_perl.major}.${until_perl.minor}`)
+        : until_perl;
+
     const filtered = available.filter(
         (item) => {
             if (item === "devel") {
                 return with_devel;
             }
-            const version = semver.coerce(item);
-            const meetsLowerBound = semver.gte(version, since_perl);
-            const meetsUpperBound = !until_perl || semver.lte(version, until_perl);
+            const version = semver.coerce (item);
+            const meetsLowerBound = semver.gte (version, since_minor);
+            const meetsUpperBound = !until_minor || semver.lte (version, until_minor);
             return meetsLowerBound && meetsUpperBound;
         }
     );
