@@ -17,6 +17,11 @@ inputs:
     description: "Single out one version from the list. Values: exact version (e.g. 5.36), 'devel', 'oldest', 'newest', 'latest'. The singled-out version is excluded from perl-versions output."
     type: string
     required: false
+  target:
+    description: "Target platform: perl, perl-tester, macos, or windows-strawberry"
+    type: string
+    required: false
+    default: "perl-tester"
 outputs:
   perl-versions:
     description: "JSON containing list of perl versions"
