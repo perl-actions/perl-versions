@@ -1,4 +1,4 @@
-const semver = require ('semver');
+const semver = require('semver');
 
 const available = [
     '5.8',
@@ -9,24 +9,37 @@ const available = [
     'devel',
 ];
 
-function decode_version (input) {
-    const version = semver.coerce (input);
-    if (!version) { return null; }
+function decode_version(input) {
+    const version = semver.coerce(input);
+    if (!version) {
+        return null;
+    }
     // Normalize to major.minor.0 — available versions are major.minor only,
     // so "5.8.1" should match the "5.8" series (resolves #8)
-    return semver.coerce (`${version.major}.${version.minor}`);
+    return semver.coerce(`${version.major}.${version.minor}`);
 }
 
-function perl_versions ({ since_perl, until_perl, with_devel } = {}) {
-    return available.filter ((item) => {
+function perl_versions({
+    since_perl,
+    until_perl,
+    with_devel
+} = {}) {
+    return available.filter((item) => {
         if (item === 'devel') {
             return !!with_devel;
         }
-        const version = semver.coerce (item);
-        if (since_perl && semver.lt (version, since_perl)) { return false; }
-        if (until_perl && semver.gt (version, until_perl)) { return false; }
+        const version = semver.coerce(item);
+        if (since_perl && semver.lt(version, since_perl)) {
+            return false;
+        }
+        if (until_perl && semver.gt(version, until_perl)) {
+            return false;
+        }
         return true;
     });
 }
 
-module.exports = { perl_versions, decode_version };
+module.exports = {
+    perl_versions,
+    decode_version
+};

@@ -1,19 +1,26 @@
-const core = require ('@actions/core');
-const { perl_versions, decode_version } = require ('./perl-versions');
+const core = require('@actions/core');
+const {
+    perl_versions,
+    decode_version
+} = require('./perl-versions');
 
-function parse_input_version (input_name) {
-    return decode_version (core.getInput (input_name));
+function parse_input_version(input_name) {
+    return decode_version(core.getInput(input_name));
 }
 
 try {
-    const since_perl = parse_input_version ('since-perl');
-    const until_perl = parse_input_version ('until-perl');
-    const with_devel = core.getInput ('with-devel') === 'true';
+    const since_perl = parse_input_version('since-perl');
+    const until_perl = parse_input_version('until-perl');
+    const with_devel = core.getInput('with-devel') === 'true';
 
-    const filtered = perl_versions ({ since_perl, until_perl, with_devel });
+    const filtered = perl_versions({
+        since_perl,
+        until_perl,
+        with_devel
+    });
 
-    console.log ('perl-versions', JSON.stringify (filtered));
-    core.setOutput ('perl-versions', JSON.stringify (filtered));
+    console.log('perl-versions', JSON.stringify(filtered));
+    core.setOutput('perl-versions', JSON.stringify(filtered));
 } catch (error) {
-    core.setFailed (error.message);
+    core.setFailed(error.message);
 }
