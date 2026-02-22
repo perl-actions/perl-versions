@@ -13,10 +13,13 @@ try {
     const until_perl = parse_input_version('until-perl');
     const with_devel = core.getInput('with-devel') === 'true';
 
+    const target = core.getInput('target') || 'perl-tester';
+
     const filtered = perl_versions({
         since_perl,
         until_perl,
-        with_devel
+        with_devel,
+        target
     });
 
     console.log('perl-versions', JSON.stringify(filtered));

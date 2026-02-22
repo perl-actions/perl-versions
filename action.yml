@@ -13,6 +13,11 @@ inputs:
     description: "Whether to include also 'devel' Perl"
     type: boolean
     default: false
+  target:
+    description: "Target platform: perl, perl-tester, macos, or windows-strawberry"
+    type: string
+    required: false
+    default: "perl-tester"
 outputs:
   perl-versions:
     description: "JSON containing list of perl versions"
