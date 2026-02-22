@@ -4,11 +4,11 @@ inputs:
   since-perl:
     description: "List all Perl versions since this (including this). See README for available versions and formats."
     type: string
-    default: 'latest'
+    required: true
   until-perl:
     description: "List all Perl versions up to this (including this). See README for available versions and formats."
     type: string
-    required: false
+    default: 'latest'
   with-devel:
     description: "Whether to include also 'devel' Perl"
     type: boolean

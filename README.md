@@ -5,9 +5,6 @@ Github action for your matrix to generate list of perls since given.
 
 ## Available versions
 
-For list of available perl versions check
-[docker-perl-tester](https://github.com/Perl/docker-perl-tester#using-docker-images-for-your-projects).
-
 Both `since-perl` and `until-perl` accept version numbers in the following formats:
 
 | Format | Example | Description |
@@ -16,11 +13,14 @@ Both `since-perl` and `until-perl` accept version numbers in the following forma
 | V-prefixed | `v5.20` | Version with `v` prefix |
 | `latest` | `latest` | Symbolic version — the newest stable Perl release |
 
+For list of available perl versions check
+[docker-perl-tester](https://github.com/Perl/docker-perl-tester#using-docker-images-for-your-projects).
+
 ## Parameters
 
 ### since-perl
 
-Default: `latest`
+Required parameter.
 
 Returns perl versions since this (including).
 
@@ -28,12 +28,10 @@ When unknown version is provided, returns empty list.
 
 ### until-perl
 
-Optional parameter.
+Default: `latest`
 
-When set, returns perl versions up to this version (including this version).
+Returns perl versions up to this version (including this version).
 Can be combined with `since-perl` to get a specific range of versions.
-
-When not set, returns all versions from `since-perl` onwards.
 
 ### with-devel
 
@@ -89,13 +87,14 @@ jobs:
 
 ### Latest stable only
 
-Since `latest` is the default value for `since-perl`, the simplest usage returns
-only the latest stable Perl (and optionally devel):
+Use the `latest` symbolic version with `since-perl` to get only the newest stable
+Perl (and optionally devel):
 
 ```yaml
       - id: action
         uses: perl-actions/perl-versions@v1
         with:
+          since-perl: latest
           with-devel: true
 ```
 
