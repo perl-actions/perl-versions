@@ -92,6 +92,31 @@ jobs:
             until-perl: "5.14"
             expected:   '["5.8","5.10","5.12","5.14"]'
 
+          - job-id:     target-perl
+            name:       "Target: perl"
+            since-perl: "5.38"
+            target:     "perl"
+            expected:   '["5.38","5.40","5.42"]'
+
+          - job-id:     target-macos
+            name:       "Target: macos"
+            since-perl: "5.38"
+            target:     "macos"
+            expected:   '["5.38","5.40","5.42"]'
+
+          - job-id:     target-strawberry
+            name:       "Target: windows-strawberry"
+            since-perl: "5.38"
+            target:     "windows-strawberry"
+            expected:   '["5.38","5.40"]'
+
+          - job-id:     target-strawberry-no-devel
+            name:       "Target: windows-strawberry ignores with-devel"
+            since-perl: "5.38"
+            target:     "windows-strawberry"
+            with-devel: "true"
+            expected:   '["5.38","5.40"]'
+
     steps:
       - uses: actions/checkout@v4
 
@@ -102,6 +127,7 @@ jobs:
           since-perl: ${{ matrix.since-perl }}
           until-perl: ${{ matrix.until-perl || null }}
           with-devel: ${{ matrix.with-devel || null }}
+          target: ${{ matrix.target || null }}
 
       - name: Validate output - ${{ matrix.name }}
         uses: prompt/actions-assert@v4
