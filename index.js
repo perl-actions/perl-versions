@@ -15,10 +15,13 @@ try {
     const with_devel = core.getInput('with-devel') === 'true';
     const single_out_input = core.getInput('single-out') || null;
 
+    const target = core.getInput ('target') || 'perl-tester';
+
     const filtered = perl_versions({
         since_perl,
         until_perl,
-        with_devel
+        with_devel,
+        target
     });
 
     const { single_out, versions } = resolve_single_out (filtered, single_out_input);

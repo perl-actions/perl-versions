@@ -1,6 +1,6 @@
 const semver = require('semver');
 
-const available = [
+const all_versions = [
     '5.8',
     '5.10', '5.12', '5.14', '5.16', '5.18',
     '5.20', '5.22', '5.24', '5.26', '5.28',
@@ -8,6 +8,18 @@ const available = [
     '5.40', '5.42',
     'devel',
 ];
+
+const available_versions = {
+    'perl': all_versions,
+    'perl-tester': all_versions,
+    'macos': all_versions,
+    'windows-strawberry': [
+        '5.14', '5.16', '5.18',
+        '5.20', '5.22', '5.24', '5.26', '5.28',
+        '5.30', '5.32', '5.34', '5.36', '5.38',
+        '5.40',
+    ],
+};
 
 function decode_version(input) {
     const version = semver.coerce(input);
@@ -22,9 +34,15 @@ function decode_version(input) {
 function perl_versions({
     since_perl,
     until_perl,
-    with_devel
+    with_devel,
+    target = 'perl-tester'
 } = {}) {
-    return available.filter((item) => {
+    const versions = available_versions[target];
+    if (!versions) {
+        throw new Error(`Unknown target: '${target}'. Available targets: ${Object.keys(available_versions).join(', ')}`);
+    }
+
+    return versions.filter((item) => {
         if (item === 'devel') {
             return !!with_devel;
         }
@@ -75,8 +93,13 @@ function resolve_single_out (versions, single_out_input) {
     };
 }
 
+function available_targets() {
+    return Object.keys(available_versions);
+}
+
 module.exports = {
     perl_versions,
     decode_version,
-    resolve_single_out
+    resolve_single_out,
+    available_targets
 };

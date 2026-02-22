@@ -1,4 +1,4 @@
-const { perl_versions, decode_version, resolve_single_out } = require ('./perl-versions');
+const { perl_versions, decode_version, resolve_single_out, available_targets } = require ('./perl-versions');
 
 describe ('decode_version', () => {
     test ('parses numeric version string', () => {
@@ -45,6 +45,7 @@ describe ('perl_versions ()', () => {
         since_perl: options.since_perl ? decode_version (options.since_perl) : undefined,
         until_perl: options.until_perl ? decode_version (options.until_perl) : undefined,
         with_devel: options.with_devel,
+        target: options.target,
     });
 
     describe ('with since_perl=5.20', () => {
@@ -200,6 +201,66 @@ describe ('perl_versions ()', () => {
         test ('it should not include versions beyond the series', () => {
             expect (result).not.toContain ('5.38');
         });
+    });
+
+    describe ('with target parameter', () => {
+        test ('defaults to perl-tester when no target specified', () => {
+            const result = act ({ since_perl: '5.20' });
+            const explicit = act ({ since_perl: '5.20', target: 'perl-tester' });
+            expect (result).toEqual (explicit);
+        });
+
+        test ('perl target includes 5.42', () => {
+            const result = act ({ since_perl: '5.40', target: 'perl' });
+            expect (result).toContain ('5.40');
+            expect (result).toContain ('5.42');
+        });
+
+        test ('perl-tester target includes 5.42', () => {
+            const result = act ({ since_perl: '5.40', target: 'perl-tester' });
+            expect (result).toContain ('5.40');
+            expect (result).toContain ('5.42');
+        });
+
+        test ('windows-strawberry target does not include 5.8', () => {
+            const result = act ({ since_perl: '5.8', target: 'windows-strawberry' });
+            expect (result).not.toContain ('5.8');
+        });
+
+        test ('windows-strawberry target includes 5.14', () => {
+            const result = act ({ since_perl: '5.14', target: 'windows-strawberry' });
+            expect (result).toContain ('5.14');
+        });
+
+        test ('windows-strawberry target does not include devel', () => {
+            const result = act ({ since_perl: '5.38', with_devel: true, target: 'windows-strawberry' });
+            expect (result).not.toContain ('devel');
+        });
+
+        test ('macos target includes 5.8 through 5.42', () => {
+            const result = act ({ since_perl: '5.8', target: 'macos' });
+            expect (result).toContain ('5.8');
+            expect (result).toContain ('5.42');
+        });
+
+        test ('throws on unknown target', () => {
+            expect (() => act ({ since_perl: '5.20', target: 'unknown' }))
+                .toThrow ('Unknown target');
+        });
+    });
+});
+
+describe ('available_targets ()', () => {
+    test ('returns all supported targets', () => {
+        const targets = available_targets ();
+        expect (targets).toContain ('perl');
+        expect (targets).toContain ('perl-tester');
+        expect (targets).toContain ('macos');
+        expect (targets).toContain ('windows-strawberry');
+    });
+
+    test ('returns an array', () => {
+        expect (Array.isArray (available_targets ())).toBe (true);
     });
 });
 
