@@ -92,6 +92,55 @@ jobs:
             until-perl: "5.14"
             expected:   '["5.8","5.10","5.12","5.14"]'
 
+          - job-id:     single-out-newest
+            name:       "Single out newest"
+            since-perl: "5.36"
+            until-perl: "5.42"
+            single-out: "newest"
+            expected:   '["5.36","5.38","5.40"]'
+            expected-single-out: "5.42"
+
+          - job-id:     single-out-oldest
+            name:       "Single out oldest"
+            since-perl: "5.36"
+            until-perl: "5.40"
+            single-out: "oldest"
+            expected:   '["5.38","5.40"]'
+            expected-single-out: "5.36"
+
+          - job-id:     single-out-devel
+            name:       "Single out devel"
+            since-perl: "5.38"
+            until-perl: "5.42"
+            with-devel: "true"
+            single-out: "devel"
+            expected:   '["5.38","5.40","5.42"]'
+            expected-single-out: "devel"
+
+          - job-id:     single-out-exact
+            name:       "Single out exact version"
+            since-perl: "5.34"
+            until-perl: "5.40"
+            single-out: "5.36"
+            expected:   '["5.34","5.38","5.40"]'
+            expected-single-out: "5.36"
+
+          - job-id:     single-out-out-of-range
+            name:       "Single out version not in range"
+            since-perl: "5.36"
+            until-perl: "5.40"
+            single-out: "5.20"
+            expected:   '["5.36","5.38","5.40"]'
+            expected-single-out: "5.20"
+
+          - job-id:     single-out-latest
+            name:       "Single out latest"
+            since-perl: "5.36"
+            until-perl: "5.42"
+            single-out: "latest"
+            expected:   '["5.36","5.38","5.40"]'
+            expected-single-out: "5.42"
+
     steps:
       - uses: actions/checkout@v4
 
@@ -102,6 +151,7 @@ jobs:
           since-perl: ${{ matrix.since-perl }}
           until-perl: ${{ matrix.until-perl || null }}
           with-devel: ${{ matrix.with-devel || null }}
+          single-out: ${{ matrix.single-out || null }}
 
       - name: Validate output - ${{ matrix.name }}
         uses: prompt/actions-assert@v4
@@ -109,3 +159,11 @@ jobs:
           assertion: npm://@assertions/is-equal:v1
           actual:    ${{ steps.call-action.outputs.perl-versions }}
           expected:  ${{ matrix.expected }}
+
+      - name: Validate single-out output - ${{ matrix.name }}
+        if: matrix.expected-single-out
+        uses: prompt/actions-assert@v4
+        with:
+          assertion: npm://@assertions/is-equal:v1
+          actual:    ${{ steps.call-action.outputs.single-out }}
+          expected:  ${{ matrix.expected-single-out }}

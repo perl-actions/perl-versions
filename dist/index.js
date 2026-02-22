@@ -33637,9 +33637,46 @@ function perl_versions({
     });
 }
 
+function resolve_single_out (versions, single_out_input) {
+    if (!single_out_input) {
+        return { single_out: null, versions };
+    }
+
+    const non_devel = versions.filter ((v) => v !== 'devel');
+    let single_out;
+
+    switch (single_out_input) {
+        case 'oldest':
+            single_out = non_devel.shift () || null;
+            break;
+        case 'newest':
+        case 'latest':
+            single_out = non_devel.pop () || null;
+            break;
+        case 'devel':
+            single_out = versions.includes ('devel') ? 'devel' : null;
+            break;
+        default: {
+            const decoded = decode_version (single_out_input);
+            single_out = decoded ? `${decoded.major}.${decoded.minor}` : null;
+            break;
+        }
+    }
+
+    if (!single_out) {
+        return { single_out: null, versions };
+    }
+
+    return {
+        single_out,
+        versions: versions.filter ((v) => v !== single_out)
+    };
+}
+
 module.exports = {
     perl_versions,
-    decode_version
+    decode_version,
+    resolve_single_out
 };
 
 
@@ -33959,7 +33996,8 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(7484);
 const {
     perl_versions,
-    decode_version
+    decode_version,
+    resolve_single_out
 } = __nccwpck_require__(8185);
 
 function parse_input_version(input_name) {
@@ -33970,6 +34008,7 @@ try {
     const since_perl = parse_input_version('since-perl');
     const until_perl = parse_input_version('until-perl');
     const with_devel = core.getInput('with-devel') === 'true';
+    const single_out_input = core.getInput('single-out') || null;
 
     const filtered = perl_versions({
         since_perl,
@@ -33977,8 +34016,15 @@ try {
         with_devel
     });
 
-    console.log('perl-versions', JSON.stringify(filtered));
-    core.setOutput('perl-versions', JSON.stringify(filtered));
+    const { single_out, versions } = resolve_single_out (filtered, single_out_input);
+
+    console.log ('perl-versions', JSON.stringify (versions));
+    core.setOutput ('perl-versions', JSON.stringify (versions));
+
+    if (single_out) {
+        console.log ('single-out', single_out);
+        core.setOutput ('single-out', single_out);
+    }
 } catch (error) {
     core.setFailed(error.message);
 }
