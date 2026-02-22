@@ -5,6 +5,9 @@ Github action for your matrix to generate list of perls since given.
 
 ## Available versions
 
+For list of available perl versions check
+[docker-perl-tester](https://github.com/Perl/docker-perl-tester#using-docker-images-for-your-projects).
+
 Both `since-perl` and `until-perl` accept version numbers in the following formats:
 
 | Format | Example | Description |
@@ -12,9 +15,6 @@ Both `since-perl` and `until-perl` accept version numbers in the following forma
 | Numeric | `5.20` | Standard version number |
 | V-prefixed | `v5.20` | Version with `v` prefix |
 | `latest` | `latest` | Symbolic version — the newest stable Perl release |
-
-For list of available perl versions check
-[docker-perl-tester](https://github.com/Perl/docker-perl-tester#using-docker-images-for-your-projects).
 
 ## Parameters
 
