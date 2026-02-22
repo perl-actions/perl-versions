@@ -39,7 +39,42 @@ function perl_versions({
     });
 }
 
+function resolve_single_out (versions, single_out_input) {
+    if (!single_out_input) {
+        return { single_out: null, versions };
+    }
+
+    const non_devel = versions.filter ((v) => v !== 'devel');
+    let single_out;
+
+    if (single_out_input === 'oldest') {
+        single_out = non_devel[0] || null;
+    } else if (single_out_input === 'newest') {
+        single_out = non_devel[non_devel.length - 1] || null;
+    } else if (single_out_input === 'devel') {
+        single_out = versions.includes ('devel') ? 'devel' : null;
+    } else {
+        const decoded = decode_version (single_out_input);
+        if (decoded) {
+            const version_str = `${decoded.major}.${decoded.minor}`;
+            single_out = versions.includes (version_str) ? version_str : null;
+        } else {
+            single_out = null;
+        }
+    }
+
+    if (!single_out) {
+        return { single_out: null, versions };
+    }
+
+    return {
+        single_out,
+        versions: versions.filter ((v) => v !== single_out)
+    };
+}
+
 module.exports = {
     perl_versions,
-    decode_version
+    decode_version,
+    resolve_single_out
 };

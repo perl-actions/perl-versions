@@ -1,4 +1,4 @@
-const { perl_versions, decode_version } = require ('./perl-versions');
+const { perl_versions, decode_version, resolve_single_out } = require ('./perl-versions');
 
 describe ('decode_version', () => {
     test ('parses numeric version string', () => {
@@ -199,6 +199,145 @@ describe ('perl_versions ()', () => {
 
         test ('it should not include versions beyond the series', () => {
             expect (result).not.toContain ('5.38');
+        });
+    });
+});
+
+describe ('resolve_single_out ()', () => {
+    const versions_with_devel = ['5.30', '5.32', '5.34', '5.36', '5.38', '5.40', '5.42', 'devel'];
+    const versions_without_devel = ['5.30', '5.32', '5.34', '5.36', '5.38', '5.40', '5.42'];
+
+    describe ('with oldest', () => {
+        const result = resolve_single_out (versions_with_devel, 'oldest');
+
+        test ('it should single out the oldest version', () => {
+            expect (result.single_out).toBe ('5.30');
+        });
+
+        test ('it should exclude the singled-out version from the list', () => {
+            expect (result.versions).not.toContain ('5.30');
+        });
+
+        test ('it should preserve the remaining versions', () => {
+            expect (result.versions).toContain ('5.32');
+            expect (result.versions).toContain ('5.42');
+            expect (result.versions).toContain ('devel');
+        });
+    });
+
+    describe ('with newest', () => {
+        const result = resolve_single_out (versions_with_devel, 'newest');
+
+        test ('it should single out the newest non-devel version', () => {
+            expect (result.single_out).toBe ('5.42');
+        });
+
+        test ('it should exclude the singled-out version from the list', () => {
+            expect (result.versions).not.toContain ('5.42');
+        });
+
+        test ('it should preserve devel in the list', () => {
+            expect (result.versions).toContain ('devel');
+        });
+    });
+
+    describe ('with newest and no devel', () => {
+        const result = resolve_single_out (versions_without_devel, 'newest');
+
+        test ('it should single out the last version', () => {
+            expect (result.single_out).toBe ('5.42');
+        });
+    });
+
+    describe ('with devel', () => {
+        const result = resolve_single_out (versions_with_devel, 'devel');
+
+        test ('it should single out devel', () => {
+            expect (result.single_out).toBe ('devel');
+        });
+
+        test ('it should exclude devel from the list', () => {
+            expect (result.versions).not.toContain ('devel');
+        });
+
+        test ('it should preserve all numeric versions', () => {
+            expect (result.versions).toHaveLength (7);
+        });
+    });
+
+    describe ('with devel when not in list', () => {
+        const result = resolve_single_out (versions_without_devel, 'devel');
+
+        test ('it should return null', () => {
+            expect (result.single_out).toBeNull ();
+        });
+
+        test ('it should not modify the versions list', () => {
+            expect (result.versions).toEqual (versions_without_devel);
+        });
+    });
+
+    describe ('with exact version', () => {
+        const result = resolve_single_out (versions_with_devel, '5.36');
+
+        test ('it should single out the specified version', () => {
+            expect (result.single_out).toBe ('5.36');
+        });
+
+        test ('it should exclude the singled-out version from the list', () => {
+            expect (result.versions).not.toContain ('5.36');
+        });
+    });
+
+    describe ('with exact version not in list', () => {
+        const result = resolve_single_out (versions_with_devel, '5.20');
+
+        test ('it should return null', () => {
+            expect (result.single_out).toBeNull ();
+        });
+
+        test ('it should not modify the versions list', () => {
+            expect (result.versions).toEqual (versions_with_devel);
+        });
+    });
+
+    describe ('with v-prefixed exact version', () => {
+        const result = resolve_single_out (versions_with_devel, 'v5.36');
+
+        test ('it should resolve the version via decode_version', () => {
+            expect (result.single_out).toBe ('5.36');
+        });
+    });
+
+    describe ('with empty input', () => {
+        const result = resolve_single_out (versions_with_devel, '');
+
+        test ('it should return null', () => {
+            expect (result.single_out).toBeNull ();
+        });
+
+        test ('it should not modify the versions list', () => {
+            expect (result.versions).toEqual (versions_with_devel);
+        });
+    });
+
+    describe ('with null input', () => {
+        const result = resolve_single_out (versions_with_devel, null);
+
+        test ('it should return null', () => {
+            expect (result.single_out).toBeNull ();
+        });
+    });
+
+    describe ('with oldest on single-element list', () => {
+        const result = resolve_single_out (['5.32'], 'oldest');
+
+        test ('it should single out the only version', () => {
+            expect (result.single_out).toBe ('5.32');
+        });
+
+        test ('it should return an empty versions list', () => {
+            expect (result.versions).toHaveLength (0);
         });
     });
 });
