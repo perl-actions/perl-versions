@@ -10,7 +10,11 @@ const available = [
 ];
 
 function decode_version (input) {
-    return semver.coerce (input);
+    const version = semver.coerce (input);
+    if (!version) { return null; }
+    // Normalize to major.minor.0 — available versions are major.minor only,
+    // so "5.8.1" should match the "5.8" series (resolves #8)
+    return semver.coerce (`${version.major}.${version.minor}`);
 }
 
 function perl_versions ({ since_perl, until_perl, with_devel } = {}) {
