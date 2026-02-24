@@ -14,6 +14,7 @@ Both `since-perl` and `until-perl` accept version numbers in the following forma
 |--------|---------|-------------|
 | Numeric | `5.20` | Standard version number |
 | V-prefixed | `v5.20` | Version with `v` prefix |
+| Patch-level | `5.36.3` | Patch component is ignored — treated as `5.36` |
 | `latest` | `latest` | Symbolic version — the newest stable Perl release |
 
 ## Parameters
@@ -106,6 +107,23 @@ Perl (and optionally devel):
         with:
           since-perl: 5.20
 ```
+
+### Patch-level versions
+
+Patch-level version numbers (e.g. `5.8.1`, `5.36.3`) are automatically truncated
+to their major.minor series. This means `since-perl: 5.8.1` is equivalent to
+`since-perl: 5.8` — the patch component is stripped before filtering.
+
+```yaml
+      - id: action
+        uses: perl-actions/perl-versions@v1
+        with:
+          since-perl: 5.8.1
+          until-perl: 5.14
+```
+
+This returns `["5.8","5.10","5.12","5.14"]` — the `5.8` series is included
+despite the `.1` patch suffix.
 
 ## Advanced Usages
 
