@@ -26,6 +26,13 @@ try {
 
     const { single_out, versions } = resolve_single_out (filtered, single_out_input);
 
+    if (single_out && !filtered.includes (single_out)) {
+        core.warning (
+            `single-out version '${single_out}' is not in the filtered perl-versions list. ` +
+            `This may cause downstream CI failures if no Docker image exists for this version.`
+        );
+    }
+
     console.log ('perl-versions', JSON.stringify (versions));
     core.setOutput ('perl-versions', JSON.stringify (versions));
 
