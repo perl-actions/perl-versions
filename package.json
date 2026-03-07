@@ -4,7 +4,7 @@
     "description": "List available Perl versions",
     "main": "index.js",
     "scripts": {
-        "lint": "eslint index.js perl-versions.js",
+        "lint": "eslint .",
         "test": "jest",
         "build": "ncc build index.js",
         "pretty": "js-beautify --editorconfig -r index.js perl-versions.js"
