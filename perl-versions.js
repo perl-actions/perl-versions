@@ -105,10 +105,24 @@ function available_targets() {
     return Object.keys(available_versions);
 }
 
+function target_info (target) {
+    const versions = available_versions[target];
+    if (!versions) {
+        return null;
+    }
+    const stable = versions.filter ((v) => v !== 'devel');
+    return {
+        has_devel: versions.includes ('devel'),
+        min_version: stable.length > 0 ? stable[0] : null,
+        max_version: stable.length > 0 ? stable[stable.length - 1] : null,
+    };
+}
+
 module.exports = {
     perl_versions,
     decode_version,
     latest_stable_version,
     resolve_single_out,
-    available_targets
+    available_targets,
+    target_info
 };
