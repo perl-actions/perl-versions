@@ -13,6 +13,7 @@ try {
     const since_perl = parse_input_version('since-perl');
     const until_perl = parse_input_version('until-perl');
     const with_devel = core.getInput('with-devel') === 'true';
+    const exclude = core.getInput('exclude') || null;
     const single_out_input = core.getInput('single-out') || null;
 
     const target = core.getInput ('target') || 'perl-tester';
@@ -21,6 +22,7 @@ try {
         since_perl,
         until_perl,
         with_devel,
+        exclude,
         target
     });
 
