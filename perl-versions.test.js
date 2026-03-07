@@ -1,4 +1,4 @@
-const { perl_versions, decode_version, latest_stable_version, resolve_single_out, available_targets } = require ('./perl-versions');
+const { perl_versions, decode_version, latest_stable_version, resolve_single_out, available_targets, target_info } = require ('./perl-versions');
 
 describe ('decode_version', () => {
     test ('parses numeric version string', () => {
@@ -333,6 +333,30 @@ describe ('available_targets ()', () => {
 
     test ('returns an array', () => {
         expect (Array.isArray (available_targets ())).toBe (true);
+    });
+});
+
+describe ('target_info ()', () => {
+    test ('returns devel info for perl target', () => {
+        const info = target_info ('perl');
+        expect (info.has_devel).toBe (true);
+        expect (info.min_version).toBe ('5.8');
+    });
+
+    test ('returns no devel for windows-strawberry', () => {
+        const info = target_info ('windows-strawberry');
+        expect (info.has_devel).toBe (false);
+        expect (info.min_version).toBe ('5.14');
+        expect (info.max_version).toBe ('5.40');
+    });
+
+    test ('returns null for unknown target', () => {
+        expect (target_info ('unknown')).toBeNull ();
+    });
+
+    test ('returns max_version for perl-tester', () => {
+        const info = target_info ('perl-tester');
+        expect (info.max_version).toMatch (/^\d+\.\d+$/);
     });
 });
 
