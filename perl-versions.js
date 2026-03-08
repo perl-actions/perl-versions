@@ -3,11 +3,7 @@ const version_data = require('./versions.json');
 
 const all_versions = version_data.all_versions;
 
-const available_versions = Object.fromEntries (
-    Object.entries (version_data.available_versions).map (
-        ([target, versions]) => [target, versions === 'all' ? all_versions : versions]
-    )
-);
+const available_versions = version_data.available_versions;
 
 function latest_stable_version () {
     const stable = all_versions.filter ((v) => v !== 'devel');
