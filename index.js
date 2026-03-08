@@ -16,6 +16,7 @@ try {
     const single_out_input = core.getInput('single-out') || null;
 
     const target = core.getInput ('target') || 'perl-tester';
+    const on_missing = core.getInput ('on-missing-version') || 'ignore';
 
     const filtered = perl_versions({
         since_perl,
@@ -27,10 +28,14 @@ try {
     const { single_out, versions } = resolve_single_out (filtered, single_out_input);
 
     if (single_out && !filtered.includes (single_out)) {
-        core.warning (
+        const msg =
             `single-out version '${single_out}' is not in the filtered perl-versions list. ` +
-            `This may cause downstream CI failures if no Docker image exists for this version.`
-        );
+            `This may cause downstream CI failures if no Docker image exists for this version.`;
+        if (on_missing === 'error') {
+            core.setFailed (msg);
+        } else if (on_missing === 'warn') {
+            core.warning (msg);
+        }
     }
 
     console.log ('perl-versions', JSON.stringify (versions));
