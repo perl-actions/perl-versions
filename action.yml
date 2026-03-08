@@ -22,6 +22,11 @@ inputs:
     type: string
     required: false
     default: "perl-tester"
+  version-mismatch:
+    description: "How to handle version mismatches (e.g. requesting devel on a target without it, or a range outside available versions). Values: ignore, warn, error"
+    type: string
+    required: false
+    default: "ignore"
 outputs:
   perl-versions:
     description: "JSON containing list of perl versions"

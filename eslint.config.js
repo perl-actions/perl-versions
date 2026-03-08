@@ -9,6 +9,7 @@ module.exports = [
         rules: {
             "prefer-const": "error",
             eqeqeq: "error",
+            "comma-dangle": ["error", "only-multiline"],
         },
     },
 ];

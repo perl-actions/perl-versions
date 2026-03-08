@@ -124,5 +124,5 @@ module.exports = {
     latest_stable_version,
     resolve_single_out,
     available_targets,
-    target_info
+    target_info,
 };
