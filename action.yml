@@ -13,6 +13,10 @@ inputs:
     description: "Whether to include also 'devel' Perl"
     type: boolean
     default: false
+  exclude:
+    description: "Comma-separated list of versions to exclude from the output (e.g. '5.8, 5.10, devel')"
+    type: string
+    required: false
   single-out:
     description: "Single out one version from the list. Values: exact version (e.g. 5.36), 'devel', 'oldest', 'newest', 'latest'. The singled-out version is excluded from perl-versions output."
     type: string

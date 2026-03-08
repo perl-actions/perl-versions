@@ -66,6 +66,7 @@ describe ('perl_versions ()', () => {
         since_perl: options.since_perl ? decode_version (options.since_perl) : undefined,
         until_perl: options.until_perl ? decode_version (options.until_perl) : undefined,
         with_devel: options.with_devel,
+        exclude: options.exclude,
         target: options.target,
     });
 
@@ -272,6 +273,59 @@ describe ('perl_versions ()', () => {
 
         test ('it should not include versions beyond the series', () => {
             expect (result).not.toContain ('5.38');
+        });
+    });
+
+    describe ('with exclude parameter', () => {
+        test ('excludes a single version', () => {
+            const result = act ({ since_perl: '5.20', exclude: '5.24' });
+            expect (result).toContain ('5.20');
+            expect (result).not.toContain ('5.24');
+            expect (result).toContain ('5.26');
+        });
+
+        test ('excludes multiple comma-separated versions', () => {
+            const result = act ({ since_perl: '5.20', exclude: '5.20, 5.24, 5.28' });
+            expect (result).not.toContain ('5.20');
+            expect (result).not.toContain ('5.24');
+            expect (result).not.toContain ('5.28');
+            expect (result).toContain ('5.22');
+            expect (result).toContain ('5.26');
+        });
+
+        test ('excludes devel', () => {
+            const result = act ({ since_perl: '5.40', with_devel: true, exclude: 'devel' });
+            expect (result).not.toContain ('devel');
+            expect (result).toContain ('5.40');
+        });
+
+        test ('handles v-prefixed versions in exclude', () => {
+            const result = act ({ since_perl: '5.30', exclude: 'v5.32' });
+            expect (result).not.toContain ('5.32');
+            expect (result).toContain ('5.30');
+        });
+
+        test ('ignores versions not in the list', () => {
+            const result = act ({ since_perl: '5.38' });
+            const result_with_exclude = act ({ since_perl: '5.38', exclude: '5.20' });
+            expect (result_with_exclude).toEqual (result);
+        });
+
+        test ('handles empty exclude string', () => {
+            const result = act ({ since_perl: '5.38' });
+            const result_with_exclude = act ({ since_perl: '5.38', exclude: '' });
+            expect (result_with_exclude).toEqual (result);
+        });
+
+        test ('handles whitespace-only entries', () => {
+            const result = act ({ since_perl: '5.38' });
+            const result_with_exclude = act ({ since_perl: '5.38', exclude: ' , , ' });
+            expect (result_with_exclude).toEqual (result);
+        });
+
+        test ('exclude takes precedence over devel inclusion', () => {
+            const result = act ({ since_perl: '5.40', with_devel: true, exclude: 'devel' });
+            expect (result).not.toContain ('devel');
         });
     });
 
