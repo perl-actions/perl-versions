@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. v2.1, v3.0)'
+        required: true
+        type: string
+      update_major_tag:
+        description: 'Update major version tag (e.g. v2) to point here'
+        required: true
+        default: true
+        type: boolean
+      update_stable_tag:
+        description: 'Update the stable tag to point here'
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate version format
+        run: |
+          if ! echo "${{ inputs.version }}" | grep -qE '^v[0-9]+\.[0-9]+(\.[0-9]+)?$'; then
+            echo "::error::Version must match vMAJOR.MINOR or vMAJOR.MINOR.PATCH (e.g. v2.1, v3.0.1)"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: npm ci
+
+      - name: Build dist
+        run: npm run build
+
+      - name: Check dist is up to date
+        run: |
+          if [ -n "$(git diff --name-only dist/)" ]; then
+            echo "::error::dist/index.js is out of date. Run 'npm run build' and commit the result before releasing."
+            git diff --stat dist/
+            exit 1
+          fi
+
+      - name: Extract major version
+        id: major
+        run: |
+          MAJOR=$(echo "${{ inputs.version }}" | grep -oE '^v[0-9]+')
+          echo "tag=$MAJOR" >> "$GITHUB_OUTPUT"
+
+      - name: Create release tag
+        run: |
+          git tag "${{ inputs.version }}"
+          git push origin "${{ inputs.version }}"
+
+      - name: Update major version tag
+        if: inputs.update_major_tag
+        run: |
+          git tag -f "${{ steps.major.outputs.tag }}"
+          git push origin "${{ steps.major.outputs.tag }}" --force
+
+      - name: Update stable tag
+        if: inputs.update_stable_tag
+        run: |
+          git tag -f stable
+          git push origin stable --force
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ inputs.version }}" \
+            --title "${{ inputs.version }}" \
+            --generate-notes
