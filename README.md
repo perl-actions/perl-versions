@@ -54,7 +54,7 @@ jobs:
       perl-versions: ${{ steps.action.outputs.perl-versions }}
     steps:
       - id: action
-        uses: perl-actions/perl-versions@v1
+        uses: perl-actions/perl-versions@v2
         with:
           since-perl: 5.20
           until-perl: 5.36
@@ -93,7 +93,7 @@ Perl (and optionally devel):
 
 ```yaml
       - id: action
-        uses: perl-actions/perl-versions@v1
+        uses: perl-actions/perl-versions@v2
         with:
           since-perl: latest
           with-devel: true
@@ -103,7 +103,7 @@ Perl (and optionally devel):
 
 ```yaml
       - id: action
-        uses: perl-actions/perl-versions@v1
+        uses: perl-actions/perl-versions@v2
         with:
           since-perl: 5.20
 ```
@@ -116,7 +116,7 @@ to their major.minor series. This means `since-perl: 5.8.1` is equivalent to
 
 ```yaml
       - id: action
-        uses: perl-actions/perl-versions@v1
+        uses: perl-actions/perl-versions@v2
         with:
           since-perl: 5.8.1
           until-perl: 5.14
@@ -139,7 +139,7 @@ Here is an example to massage the Perl versions to append the string `-buster` t
       perl-versions: ${{ steps.massage.outputs.perl-versions }}
     steps:
       - id: action
-        uses: perl-actions/perl-versions@v1
+        uses: perl-actions/perl-versions@v2
         with:
           since-perl: 5.10
           with-devel: true
