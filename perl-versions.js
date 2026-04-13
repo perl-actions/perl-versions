@@ -39,10 +39,19 @@ function decode_version(input) {
     return semver.coerce(`${version.major}.${version.minor}`);
 }
 
+function parse_exclude (exclude) {
+    if (!exclude) return [];
+    return exclude
+        .split (',')
+        .map ((s) => s.trim ())
+        .filter ((s) => s.length > 0);
+}
+
 function perl_versions({
     since_perl,
     until_perl,
     with_devel,
+    exclude,
     target = 'perl-tester'
 } = {}) {
     const versions = available_versions[target];
@@ -50,7 +59,16 @@ function perl_versions({
         throw new Error(`Unknown target: '${target}'. Available targets: ${Object.keys(available_versions).join(', ')}`);
     }
 
+    const excluded = new Set (parse_exclude (exclude).map ((v) => {
+        if (v === 'devel') return 'devel';
+        const decoded = decode_version (v);
+        return decoded ? `${decoded.major}.${decoded.minor}` : null;
+    }).filter ((v) => v !== null));
+
     return versions.filter((item) => {
+        if (excluded.has (item)) {
+            return false;
+        }
         if (item === 'devel') {
             return !!with_devel;
         }
