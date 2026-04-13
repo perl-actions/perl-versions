@@ -1,25 +1,9 @@
 const semver = require('semver');
+const version_data = require('./versions.json');
 
-const all_versions = [
-    '5.8',
-    '5.10', '5.12', '5.14', '5.16', '5.18',
-    '5.20', '5.22', '5.24', '5.26', '5.28',
-    '5.30', '5.32', '5.34', '5.36', '5.38',
-    '5.40', '5.42',
-    'devel',
-];
+const all_versions = version_data.all_versions;
 
-const available_versions = {
-    'perl': all_versions,
-    'perl-tester': all_versions,
-    'macos': all_versions,
-    'windows-strawberry': [
-        '5.14', '5.16', '5.18',
-        '5.20', '5.22', '5.24', '5.26', '5.28',
-        '5.30', '5.32', '5.34', '5.36', '5.38',
-        '5.40',
-    ],
-};
+const available_versions = version_data.available_versions;
 
 function latest_stable_version () {
     const stable = all_versions.filter ((v) => v !== 'devel');
