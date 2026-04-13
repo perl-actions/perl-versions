@@ -22,6 +22,11 @@ inputs:
     type: string
     required: false
     default: "perl-tester"
+  on-missing-version:
+    description: "Behavior when single-out version is not in the filtered list: 'ignore', 'warn', or 'error'"
+    type: string
+    required: false
+    default: "ignore"
 outputs:
   perl-versions:
     description: "JSON containing list of perl versions"
