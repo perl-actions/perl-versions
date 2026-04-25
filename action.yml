@@ -1,5 +1,8 @@
 name: 'Perl versions'
 description: 'Generate Perl versions list for your matrix'
+branding:
+  icon: "grid"
+  color: "yellow"
 inputs:
   since-perl:
     description: "List all Perl versions since this (including this). See README for available versions and formats."
