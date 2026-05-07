@@ -41,6 +41,39 @@ Default: `false`
 When set to `true`, returned list will also include current `devel` version of Perl,
 if available.
 
+### target
+
+Default: `perl-tester`
+
+Selects which platform target to use for generating the version list. Each target
+corresponds to a different set of available Perl versions, reflecting what is
+actually published for that platform.
+
+Available targets:
+
+| Target | Description | Versions |
+|--------|-------------|----------|
+| `perl` | Official [Perl Docker images](https://hub.docker.com/_/perl) | 5.8 — 5.42 + devel |
+| `perl-tester` | [perl-tester Docker images](https://github.com/Perl/docker-perl-tester) with pre-installed testing tools | 5.8 — 5.42 + devel |
+| `macos` | macOS native Perl builds | 5.8 — 5.42 + devel |
+| `windows-strawberry` | [Strawberry Perl](https://strawberryperl.com/) for Windows | 5.14 — 5.40 |
+
+Notes:
+- `windows-strawberry` has a smaller version range and does **not** include `devel`.
+- If an unknown target is provided, the action fails with an error listing the valid targets.
+
+### single-out
+
+Optional, no default.
+
+Separates one version from the list into a dedicated `single-out` output. The
+singled-out version is **excluded** from the main `perl-versions` output. Useful
+for running one version as a "primary" job (e.g. coverage upload) while the rest
+run in a matrix.
+
+Accepted values: an exact version (e.g. `5.36`), `oldest`, `newest` / `latest`,
+or `devel`.
+
 ## Usage
 
 ### Version range
@@ -124,6 +157,53 @@ to their major.minor series. This means `since-perl: 5.8.1` is equivalent to
 
 This returns `["5.8","5.10","5.12","5.14"]` — the `5.8` series is included
 despite the `.1` patch suffix.
+
+### Cross-platform targets
+
+Use the `target` input to generate version lists for different platforms:
+
+```yaml
+  perl-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      perl-versions: ${{ steps.action.outputs.perl-versions }}
+    steps:
+      - id: action
+        uses: perl-actions/perl-versions@v2
+        with:
+          since-perl: 5.20
+          target: windows-strawberry
+```
+
+This returns only the versions available for Strawberry Perl (5.20 through 5.40).
+
+To test across multiple platforms, use separate version steps per target:
+
+```yaml
+  strawberry-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      perl-versions: ${{ steps.action.outputs.perl-versions }}
+    steps:
+      - id: action
+        uses: perl-actions/perl-versions@v2
+        with:
+          since-perl: 5.26
+          target: windows-strawberry
+
+  test-windows:
+    needs: strawberry-versions
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        perl-version: ${{ fromJson (needs.strawberry-versions.outputs.perl-versions) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl-version }}
+      - run: perl -V
+```
 
 ## Advanced Usages
 
