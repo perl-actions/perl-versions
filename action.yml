@@ -21,7 +21,7 @@ inputs:
     type: string
     required: false
   target:
-    description: "Target platform: perl, perl-tester, macos, or windows-strawberry"
+    description: "Target platform. One of: perl, perl-tester, perl-buster, perl-bullseye, perl-bookworm, perl-trixie, macos, windows-strawberry. See README for version ranges per target."
     type: string
     required: false
     default: "perl-tester"
