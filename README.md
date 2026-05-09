@@ -53,13 +53,21 @@ Available targets:
 
 | Target | Description | Versions |
 |--------|-------------|----------|
-| `perl` | Official [Perl Docker images](https://hub.docker.com/_/perl) | 5.8 — 5.42 + devel |
+| `perl` | Official [Perl Docker images](https://hub.docker.com/_/perl) (any base) | 5.8 — 5.42 + devel |
 | `perl-tester` | [perl-tester Docker images](https://github.com/Perl/docker-perl-tester) with pre-installed testing tools | 5.8 — 5.42 + devel |
+| `perl-buster` | Official Perl Docker images on Debian 10 (Buster) | 5.8 — 5.40 |
+| `perl-bullseye` | Official Perl Docker images on Debian 11 (Bullseye) | 5.30 — 5.42 |
+| `perl-bookworm` | Official Perl Docker images on Debian 12 (Bookworm) | 5.36 — 5.42 |
+| `perl-trixie` | Official Perl Docker images on Debian 13 (Trixie) | 5.38 — 5.42 |
 | `macos` | macOS native Perl builds | 5.8 — 5.42 + devel |
-| `windows-strawberry` | [Strawberry Perl](https://strawberryperl.com/) for Windows | 5.14 — 5.40 |
+| `windows-strawberry` | [Strawberry Perl](https://strawberryperl.com/) for Windows | 5.14 — 5.42 |
 
 Notes:
-- `windows-strawberry` has a smaller version range and does **not** include `devel`.
+- The Debian-suffixed targets (`perl-buster`, `perl-bullseye`, `perl-bookworm`,
+  `perl-trixie`) reflect the version ranges actually published for the
+  corresponding `perl:<version>-<distro>` Docker image tags. Use them when
+  you need to pin your CI matrix to a specific Debian base.
+- `windows-strawberry` and the Debian-suffixed targets do **not** include `devel`.
 - If an unknown target is provided, the action fails with an error listing the valid targets.
 
 ### single-out
@@ -175,7 +183,7 @@ Use the `target` input to generate version lists for different platforms:
           target: windows-strawberry
 ```
 
-This returns only the versions available for Strawberry Perl (5.20 through 5.40).
+This returns only the versions available for Strawberry Perl (5.20 through 5.42).
 
 To test across multiple platforms, use separate version steps per target:
 
@@ -204,6 +212,40 @@ To test across multiple platforms, use separate version steps per target:
           perl-version: ${{ matrix.perl-version }}
       - run: perl -V
 ```
+
+### Pinning to a Debian release
+
+Use a Debian-suffixed target when your CI relies on a specific
+`perl:<version>-<distro>` Docker image — the version list is constrained
+to what is actually published for that distro:
+
+```yaml
+  perl-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      perl-versions: ${{ steps.action.outputs.perl-versions }}
+    steps:
+      - id: action
+        uses: perl-actions/perl-versions@v2
+        with:
+          since-perl: 5.36
+          target: perl-bookworm
+
+  test:
+    needs: perl-versions
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        perl-version: ${{ fromJson (needs.perl-versions.outputs.perl-versions) }}
+    container:
+      image: perl:${{ matrix.perl-version }}-bookworm
+    steps:
+      - uses: actions/checkout@v4
+      - run: perl -V
+```
+
+Available distro targets: `perl-buster` (Debian 10), `perl-bullseye`
+(Debian 11), `perl-bookworm` (Debian 12), `perl-trixie` (Debian 13).
 
 ## Advanced Usages
 
