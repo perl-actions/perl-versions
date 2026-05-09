@@ -168,14 +168,14 @@ jobs:
             name:       "Target: windows-strawberry"
             since-perl: "5.38"
             target:     "windows-strawberry"
-            expected:   '["5.38","5.40"]'
+            expected:   '["5.38","5.40","5.42"]'
 
           - job-id:     target-strawberry-no-devel
             name:       "Target: windows-strawberry ignores with-devel"
             since-perl: "5.38"
             target:     "windows-strawberry"
             with-devel: "true"
-            expected:   '["5.38","5.40"]'
+            expected:   '["5.38","5.40","5.42"]'
 
     steps:
       - uses: actions/checkout@v4
